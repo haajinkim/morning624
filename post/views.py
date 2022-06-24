@@ -7,20 +7,22 @@ from .models import (
     JobPost,
     Company
 )
-from .serializers import JobPostSerializer
+from .serializers import JobPostSerializer,JobPostSkillSetSerializer
 from django.db.models.query_utils import Q
 
 
 class SkillView(APIView):
 
     permission_classes = [permissions.AllowAny]
-
     def get(self, request):
         skills = self.request.query_params.getlist('skills', '')
-        
-        print("skills = ", end=""), print(skills)
-
-        return Response(status=status.HTTP_200_OK)
+        data = JobPost.objects.filter(
+            Q(skillset__name__in= skills)
+            )
+        if data.exists():
+            serializer = JobPostSerializer(data, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(status= status.HTTP_400_BAD_REQUEST)
 
 
 class JobView(APIView):

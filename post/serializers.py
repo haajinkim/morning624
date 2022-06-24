@@ -6,17 +6,13 @@ class CompanySerializer(serializers.ModelSerializer):
         fields= ["company_name","business_area"]
 
 
-class JobPostSkillSetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = JobPostSkillSet    
-        fields= ["skill_set","job_post"]       
-    def create(self, validated_data):
-            print(validated_data)
 
 class JobPostSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = JobPost
         fields = ["job_type","company","job_description","salary"]
+
 
     def create(self, validated_data):
             job_post = JobPost(**validated_data)
@@ -28,3 +24,12 @@ class JobPostSerializer(serializers.ModelSerializer):
             # add 는 id값
             job_post.save()
             return job_post
+
+class JobPostSkillSetSerializer(serializers.ModelSerializer):
+    job_post = JobPostSerializer()
+    skill_set = serializers.SerializerMethodField()
+    def get_skill_set(self, obj):
+        return [skill_set.name for skill_set in obj.skill_set.all()]
+    class Meta:
+        model = JobPostSkillSet
+        fields = ["skill_set", "job_post"]      
